@@ -421,7 +421,8 @@ class Select extends Component {
       dropdownItems = res.data
     }
     if (Array.isArray(dropdownItems)) {
-      const reviceSelectedItems = this.props.type === 'multiple' ? (this.props.dataSource && this.state.selectedItems) || [] : this.state.cacheSelectedItems
+      const multipleSelectedItems = this.props.dataSource && this.state.selectedItems
+      const reviceSelectedItems = this.props.type === 'multiple' ? multipleSelectedItems || [] : this.state.cacheSelectedItems
       const selectedItems = this.resetSelectedItems(
         this.props.value,
         dropdownItems,

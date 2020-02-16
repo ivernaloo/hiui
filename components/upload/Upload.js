@@ -6,7 +6,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import Modal from '../modal'
 import Button from '../button'
 import Icon from '../icon'
-
+import request from '../_util/request'
 let fileId = 0
 
 class Upload extends Component {
@@ -164,7 +164,9 @@ class Upload extends Component {
     const { onRemove } = this.props
     const doRemove = () => {
       fileList.splice(index, 1)
-      this.setState({ fileList, fileCountLimted: false })
+      this.setState({ fileList, fileCountLimted: false }, () => {
+        file.uploadState === 'loading' && file.CancelToken.cancel('取消上传')
+      })
     }
     const ret = onRemove(file, fileList, index)
     if (ret === true) {
@@ -208,12 +210,10 @@ class Upload extends Component {
 
   uploadFile (file, dataUrl = '') {
     const FileReader = window.FileReader
-    const XMLHttpRequest = window.XMLHttpRequest
-    const FormData = window.FormData
     const { fileList } = this.state
     const { name, params, headers, uploadAction, withCredentials } = this.props
     const onerror = err => {
-      const errRes = err !== undefined ? err : { status: xhr.status, statusText: xhr.statusText }
+      const errRes = err
       const _fileList = [...fileList]
       file.uploadState = 'error'
       const idx = _fileList.findIndex(item => item.fileId === file.fileId)
@@ -241,56 +241,42 @@ class Upload extends Component {
       }
     }
 
-    let xhr = new XMLHttpRequest()
-    let formFile = new FormData()
-    xhr.withCredentials = withCredentials
-    if (dataUrl) {
-      formFile.append(name, dataUrl)
-    } else {
-      formFile.append(name, file)
-    }
-    // 设置除file外需要带入的参数
-    if (params) {
-      for (let i in params) {
-        formFile.append(i, params[i])
+    const CancelToken = request.CancelToken()
+    const CancelSource = CancelToken.source()
+    file.CancelToken = CancelSource
+    request({
+      url: uploadAction,
+      type: 'upload',
+      name,
+      file: file,
+      params: params,
+      withCredentials,
+      headers: headers,
+      cancelToken: CancelSource.token,
+      onUploadProgress: (event) => {
+        var e = event || window.event
+        var percentComplete = Math.ceil(e.loaded / e.total * 100)
+        const _fileList = [...fileList]
+        const idx = _fileList.findIndex(item => item.fileId === file.fileId)
+        _fileList.splice(idx, 1, file)
+        file.progressNumber = percentComplete
+        this.setState({ fileList: _fileList })
       }
-    }
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          const _fileList = [...fileList]
-          file.uploadState = 'success'
-          const idx = _fileList.findIndex(item => item.fileId === file.fileId)
-          _fileList.splice(idx, 1, file)
-          this.setState({ fileList: _fileList }, () =>
-            this.onUpload(file, _fileList, JSON.parse(xhr.response))
-          )
-        } else {
-          onerror()
-        }
+    }).then((res) => {
+      if (res.status === 200) {
+        const _fileList = [...fileList]
+        file.uploadState = 'success'
+        const idx = _fileList.findIndex(item => item.fileId === file.fileId)
+        _fileList.splice(idx, 1, file)
+        this.setState({ fileList: _fileList }, () =>
+          this.onUpload(file, _fileList, res.data)
+        )
+      } else {
+        onerror(res.response)
       }
-    }
-    xhr.upload.onerror = () => {
-      onerror()
-    }
-    xhr.upload.onprogress = event => {
-      var e = event || window.event
-      var percentComplete = Math.ceil(e.loaded / e.total * 100)
-      const _fileList = [...fileList]
-      const idx = _fileList.findIndex(item => item.fileId === file.fileId)
-      _fileList.splice(idx, 1, file)
-      file.progressNumber = percentComplete
-      this.setState({ fileList: _fileList })
-    }
-
-    xhr.open('post', uploadAction, true)
-    // 设置用户传入的请求头
-    if (headers) {
-      for (let j in headers) {
-        xhr.setRequestHeader(j, headers[j])
-      }
-    }
-    xhr.send(formFile)
+    }).catch(error => {
+      onerror(error.response)
+    })
   }
 
   uploadStatusIcon (status) {

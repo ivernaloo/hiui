@@ -11,7 +11,7 @@ import loading from '../loading'
 import '../pagination/style'
 import '../icon/style'
 import {setKey, scrollTop, getStyle, getPosition, offset} from './tool'
-import request from 'axios'
+import request from '../_util/request'
 import qs from 'qs'
 
 class Table extends Component {
@@ -808,7 +808,7 @@ class Table extends Component {
     if (headers) {
       options.headers = headers
     }
-    request.create().request(options).then(res => {
+    request(options).then(res => {
       let {data, columns, page} = success(res)
       let columnsDetail = this.setColumnsDetail(null, null, columns)
       this.setState({
@@ -868,7 +868,7 @@ class Table extends Component {
       options.headers = headers
     }
 
-    request.create().request(options).then(res => {
+    request(options).then(res => {
       let {data, columns, page} = success(res)
       this.setState({
         dataSource: data,

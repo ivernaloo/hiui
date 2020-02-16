@@ -9,9 +9,10 @@ import Popper from '../popper'
 import SelectInput from './SelectInput'
 import SelectDropdown from './SelectDropdown'
 import Provider from '../context'
-import fetchJsonp from 'fetch-jsonp'
 import qs from 'qs'
 import _ from 'lodash'
+
+import request from '../_util/request'
 
 class Select extends Component {
   autoloadFlag = true // 第一次自动加载数据标识
@@ -387,21 +388,20 @@ class Select extends Component {
           jsonpCallback: jsonpCallback,
           jsonpCallbackFunction: jsonpCallback
         }
-        fetchJsonp(url, _o)
+        request.jsonp(url, _o)
           .then(res => res.json())
           .then(json => {
             this._setDropdownItems(json, transformResponse)
           })
       } else {
-        /* eslint-disable */
-        fetch(url, {
+        request({
+          url,
           method: type,
           ...options
         })
-          .then(response => response.json())
           .then(
             res => {
-              this._setDropdownItems(res, transformResponse)
+              this._setDropdownItems(res.data, transformResponse)
             },
             err => {
               error && error(err)
@@ -413,7 +413,7 @@ class Select extends Component {
       }
     }
   }
-  _setDropdownItems(res, func) {
+  _setDropdownItems (res, func) {
     let dropdownItems = []
     if (func) {
       dropdownItems = func(res)
@@ -421,7 +421,7 @@ class Select extends Component {
       dropdownItems = res.data
     }
     if (Array.isArray(dropdownItems)) {
-      const reviceSelectedItems = this.props.type === 'multiple' ? this.props.dataSource && this.state.selectedItems || [] : this.state.cacheSelectedItems 
+      const reviceSelectedItems = this.props.type === 'multiple' ? (this.props.dataSource && this.state.selectedItems) || [] : this.state.cacheSelectedItems
       const selectedItems = this.resetSelectedItems(
         this.props.value,
         dropdownItems,
@@ -436,7 +436,7 @@ class Select extends Component {
       fetching: false
     })
   }
-  onFilterItems(keyword) {
+  onFilterItems (keyword) {
     const { onSearch, dataSource, autoload } = this.props
     this.setState(
       {
@@ -445,22 +445,22 @@ class Select extends Component {
       () => this.resetFocusedIndex()
     )
 
-    if (dataSource) { 
-      if (autoload ||(keyword && keyword.length >= this.state.queryLength)) {
+    if (dataSource) {
+      if (autoload || (keyword && keyword.length >= this.state.queryLength)) {
         this.remoteSearch(keyword)
       }
-    } else if(onSearch) {
+    } else if (onSearch) {
       this.remoteSearch(keyword)
     }
   }
 
-  matchFilter(item) {
+  matchFilter (item) {
     const { filterOption } = this.props
     const { searchable, keyword } = this.state
 
     const shouldMatch = this.isRemote() || !searchable || !keyword
 
-    if (typeof filterOption === "function") {
+    if (typeof filterOption === 'function') {
       return shouldMatch || filterOption(keyword, item)
     }
 
@@ -470,7 +470,7 @@ class Select extends Component {
     )
   }
 
-  resetFocusedIndex(setState = true) {
+  resetFocusedIndex (setState = true) {
     let focusedIndex = -1
 
     this.state.dropdownItems.every(item => {
@@ -487,15 +487,15 @@ class Select extends Component {
     return focusedIndex
   }
 
-  setFocusedIndex(focusedIndex) {
+  setFocusedIndex (focusedIndex) {
     this.setState({ focusedIndex })
   }
 
-  moveFocusedIndex(direction) {
+  moveFocusedIndex (direction) {
     let { focusedIndex } = this.state
     const { dropdownItems } = this.state
 
-    if (direction === "up") {
+    if (direction === 'up') {
       dropdownItems
         .slice(0, focusedIndex)
         .reverse()
@@ -520,7 +520,7 @@ class Select extends Component {
     })
   }
 
-  localeDatasProps(key) {
+  localeDatasProps (key) {
     const { localeDatas } = this.props
     if (this.props[key]) {
       return this.props[key]
@@ -529,7 +529,7 @@ class Select extends Component {
     }
   }
 
-  render() {
+  render () {
     const {
       type,
       showCheckAll,
@@ -557,20 +557,20 @@ class Select extends Component {
       searchable,
       dropdownShow,
       focusedIndex,
-      fetching,
+      fetching
     } = this.state
     const extraClass = {
-      "is-multiple": type === "multiple",
-      "is-single": type === "single"
+      'is-multiple': type === 'multiple',
+      'is-single': type === 'single'
     }
     const selectInputWidth = this.selectInputContainer ? this.selectInputContainer.getBoundingClientRect().width : null
     return (
       <div
-        className={classNames("hi-select", className, extraClass)}
+        className={classNames('hi-select', className, extraClass)}
         style={style}
       >
         <div
-          className="hi-select__input-container"
+          className='hi-select__input-container'
           ref={node => {
             this.selectInputContainer = node
           }}
@@ -611,15 +611,15 @@ class Select extends Component {
           attachEle={this.selectInputContainer}
           zIndex={1050}
           topGap={5}
-          className="hi-select__popper"
-          placement="top-bottom-start"
+          className='hi-select__popper'
+          placement='top-bottom-start'
         >
           <SelectDropdown
             noFoundTip={emptyContent}
             mode={type}
             onBlur={onBlur}
             onFocus={onFocus}
-            isOnSearch = {onSearch || dataSource}
+            isOnSearch={onSearch || dataSource}
             onSearch={this.debouncedFilterItems.bind(this)}
             searchable={searchable}
             showCheckAll={showCheckAll}

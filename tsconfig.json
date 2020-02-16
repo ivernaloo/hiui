@@ -9,6 +9,7 @@
         "forceConsistentCasingInFileNames": true,
         "strictPropertyInitialization": true,
         "noImplicitReturns": true,
+        "suppressImplicitAnyIndexErrors":true,
         "moduleResolution": "node",
         "noImplicitAny": true,
         "strictNullChecks": true,

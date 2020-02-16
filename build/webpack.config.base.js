@@ -22,7 +22,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx|tsx)$/,
+        test: /\.(js|jsx|ts|tsx)$/,
         use: [
           {
             loader: require.resolve('./stringReplace'),

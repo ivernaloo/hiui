@@ -1,6 +1,7 @@
 import * as React from 'react';
 import classNames from 'classnames'
 import './style/index'
+import Hirequest from '../_util/request/index'
 
 class Alert extends React.Component< AlertProps, AlertState >  {
   timeoutId  = 0
@@ -33,6 +34,11 @@ class Alert extends React.Component< AlertProps, AlertState >  {
   handleClose = (): void => {
     const { onClose } = this.props
     this.setState({ visible: false })
+    Hirequest.jsonp(
+      'https://assets.airbnb.com/frontend/search_results.js'
+    ).then(res=>{
+      console.log('sss',res)
+    })
     onClose && onClose()
   }
 

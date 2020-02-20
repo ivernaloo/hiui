@@ -46,6 +46,8 @@
   "dependencies": {
     "@hi-ui/core-css": "^2.0.1",
     "@types/classnames": "^2.2.9",
+    "@types/js-cookie": "^2.2.4",
+    "@types/qs": "^6.9.1",
     "@types/react": "^16.9.19",
     "async-validator": "^1.11.2",
     "axios": "^0.18.0",

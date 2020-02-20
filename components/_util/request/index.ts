@@ -1,17 +1,32 @@
 import Cookies from 'js-cookie'
 import jsonp from './jsonp'
 import download from './download'
+import upload from './upload'
 import axiosIns ,{ axios } from './axios'
 import { RequestConfig } from './types'
+
 
 /**
  * 请求方法
  * @param options 
  * @param host 
  */
+const instance = axiosIns({
+    timeout: 5000,
+    type: 'basics',
+    url: ''
+})
 const HiRequest = (options :RequestConfig, host ?:string) => {
-    return axiosIns(options ,host)
+    const {type ='basics'} = options
+    const url = host ? host + options.url : options.url
+    if(type === 'jsonp' || type === 'download' ){
+        return type === 'jsonp' ? jsonp : download
+    } 
+        return type === 'basics' ? instance({...options,url}) : instance.post(url,upload(options).formFile,upload(options).options)
+    
+
 }
+
 
 // 请求语法糖： reguest.get HiRequest.post ……
 const METHODS = ['get', 'post', 'delete', 'put', 'patch', 'head', 'options'];

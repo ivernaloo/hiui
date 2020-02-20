@@ -33,9 +33,16 @@ export interface RequestConfig {
     httpAgent?: any;
     httpsAgent?: any;
     cancelToken?: any;
-    type: 'basics' | 'upload',
+    type?: 'basics' | 'upload' | 'jsonp' | 'download',
     file?: any,
     name?: string,
     filename ?: string,
+    jsonpCallback ?: string;
+    jsonpCallbackFunction ?: string;
+    charset ?: any
 }
 
+export interface UploadFiles {
+  formFile: FormData,
+  options: RequestConfig
+}

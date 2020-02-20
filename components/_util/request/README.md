@@ -138,6 +138,7 @@ For convenience aliases have been provided for all supported request methods.
 ##### HiRequest.put(url[, data[, config]])
 ##### HiRequest.patch(url[, data[, config]])
 ##### HiRequest.getCookiesParam(url[, data[, config]])
+
 ## Request Config
 ```js
 //获取cookies中的指定项

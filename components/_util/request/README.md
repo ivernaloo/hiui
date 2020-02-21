@@ -87,6 +87,7 @@ HiRequest.all([getUserAccount(), getUserPermissions()])
     // Both requests are now complete
   }));
 ```
+
 Performing a `upload` request
 
 ```js
@@ -113,6 +114,122 @@ HiRequest.upload(({
     }).catch(error => {
       onerror(error.response)
     });
+```
+
+## HiRequest  jsonp
+Performing a `jsonp` request
+
+```js
+HiRequest.jsonp('/users.jsonp')
+  .then(function(response) {
+    return response.json()
+  }).then(function(json) {
+    console.log('parsed json', json)
+  }).catch(function(ex) {
+    console.log('parsing failed', ex)
+  })
+```
+
+### 设置JSONP回调参数名称，默认为'callback'
+```js
+HiRequest.jsonp('/users.jsonp', {
+    jsonpCallback: 'custom_callback',
+  })
+  .then(function(response) {
+    return response.json()
+  }).then(function(json) {
+    console.log('parsed json', json)
+  }).catch(function(ex) {
+    console.log('parsing failed', ex)
+  })
+```
+### 设置JSONP回调函数名称，默认为带json_前缀的随机数
+
+```javascript
+HiRequest.jsonp('/users.jsonp', {
+    jsonpCallbackFunction: 'function_name_of_jsonp_response'
+  })
+  .then(function(response) {
+    return response.json()
+  }).then(function(json) {
+    console.log('parsed json', json)
+  }).catch(function(ex) {
+    console.log('parsing failed', ex)
+  })
+```
+
+### 设置JSONP请求超时，默认为5000ms
+
+```javascript
+HiRequest.jsonp('/users.jsonp', {
+    timeout: 3000,
+  })
+  .then(function(response) {
+    return response.json()
+  }).then(function(json) {
+    console.log('parsed json', json)
+  }).catch(function(ex) {
+    console.log('parsing failed', ex)
+  })
+```
+
+### `jsonpCallback`和之间的区别`jsonCallbackFunction`
+这两个功能可以很容易地相互混淆，但是有一个明显的区别。
+
+默认值为
+* `jsonpCallback`，默认值为`callback`。这是回调参数的名称
+* `jsonCallbackFunction`，默认值为`null`。这是回调函数的名称。为了使其与众不同，它是一个`jsonp_`前缀为的随机字符串`jsonp_1497658186785_39551`。如果由服务器设置，则将其保留为空白；如果回调函数名称是固定的，则将其显式设置。
+
+##### Case 1:
+```js
+HiRequest.jsonp('/users.jsonp', {
+  jsonpCallback: 'cb'
+})
+```
+请求网址将为`/users.jsonp?cb=jsonp_1497658186785_39551`，并且服务器应使用以下函数进行响应：
+```js
+jsonp_1497658186785_39551(
+  { ...data here... }
+)
+```
+
+##### Case 2:
+```js
+HiRequest.jsonp('/users.jsonp', {
+  jsonpCallbackFunction: 'search_results'
+})
+```
+请求网址将为`/users.jsonp?callback=search_results`，并且服务器应始终使用名为的函数进行响应`search_results`
+```js
+search_results(
+  { ...data here... }
+)
+```
+
+Performing a `download` request
+
+```js
+HiRequest.download({
+      url: 'https://download', // 上传地址 
+      filename: '下载文件名', // 文件
+      params: {
+        id:1
+      }, // 其他参数
+      withCredentials:true,
+      headers: {
+        token:'token'
+      },
+      // `onDownloadProgress` 允许为下载处理进度事件
+      onDownloadProgress: (progressEvent) => {
+        // 对原生进度事件的处理
+      },
+      downloadSuccess: (res)=>{
+        // 下载成功
+      },
+      downloadFail: (res)=>{
+        // 下载失败
+      },
+    })
 ```
 
 ## HiRequest API
@@ -165,6 +282,8 @@ For convenience aliases have been provided for all supported request methods.
 ##### HiRequest.put(url[, data[, config]])
 ##### HiRequest.patch(url[, data[, config]])
 ##### HiRequest.getCookiesParam(url[, data[, config]])
+##### HiRequest.upload(url[, data[, config]])
+##### HiRequest.jsonp(url[, data[, config]])
 
 ## Request Config
 ```js

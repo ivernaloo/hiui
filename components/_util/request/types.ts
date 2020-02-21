@@ -39,7 +39,9 @@ export interface RequestConfig {
     filename ?: string,
     jsonpCallback ?: string;
     jsonpCallbackFunction ?: string;
-    charset ?: any
+    charset ?: any;
+    downloadSuccess ?: (config:any) => any
+    downloadFail ?: (config:any) => any
 }
 
 export interface UploadFiles {

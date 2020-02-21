@@ -6,7 +6,7 @@ interface JsonpOptions {
 }
 
 const defaultJsonpOptions = {
-    timeout : 6000,
+    timeout : 5000,
     jsonpCallback : 'callback',
 }
 

@@ -6,7 +6,7 @@ const instance = axiosIns({
     type: 'download',
     url: ''
 })
-const download = (options:RequestConfig, host?: string):void => {
+const download = (options:RequestConfig, host?: string) => {
     const {
         filename = '未命名'
     } = options
@@ -14,6 +14,7 @@ const download = (options:RequestConfig, host?: string):void => {
 
     Object.assign(options,{responseType: 'blob'})
     instance({...options,url}).then((res)=>{
+        const { downloadSuccess } = options
         const blob = new Blob([res.data])
         const downloadElement = document.createElement('a')
         const href = window.URL.createObjectURL(blob); // 创建下载的链接
@@ -23,6 +24,10 @@ const download = (options:RequestConfig, host?: string):void => {
         downloadElement.click(); // 点击下载
         document.body.removeChild(downloadElement); // 下载完成移除元素
         window.URL.revokeObjectURL(href); // 释放blob对象
+        downloadSuccess && downloadSuccess(res)
+    },(error)=> {
+        const { downloadFail } = options
+        downloadFail && downloadFail(error)
     })
     
 }

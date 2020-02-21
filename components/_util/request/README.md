@@ -87,6 +87,33 @@ HiRequest.all([getUserAccount(), getUserPermissions()])
     // Both requests are now complete
   }));
 ```
+Performing a `upload` request
+
+```js
+HiRequest.upload(({
+      url: 'https://upload', // 上传地址 
+      name: 'filename', // 文件参数
+      file: '', // 文件
+      params: {
+        id:1
+      }, // 其他参数
+      withCredentials:true,
+      headers: {
+        token:'token'
+      },
+      onUploadProgress: (event) => {
+       // 上传进度
+      }
+    }).then((res) => {
+      if (res.status === 200) {
+       // 返回结果
+      } else {
+        onerror(res.response)
+      }
+    }).catch(error => {
+      onerror(error.response)
+    });
+```
 
 ## HiRequest API
 
